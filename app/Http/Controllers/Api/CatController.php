@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Breed;
+use App\Models\Cat;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Breed\StoreBreedRequest;
-use App\Http\Requests\Breed\UpdateBreedRequest;
+use App\Http\Requests\Cat\StoreCatRequest;
+use App\Http\Requests\Cat\UpdateCatRequest;
 use App\Http\Responses\ApiResponse;
 use Exception;
+use App\Http\Resources\Api\CatResource;
 
-
-class BreedController extends Controller
+class CatController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,13 +18,16 @@ class BreedController extends Controller
     public function index()
     {
         try {
-
-            $breeds = Breed::query()
-                ->with(['cats'])
+            $cats = Cat::query()
+                ->with(['breed'])
                 ->orderBy('id', 'DESC')
                 ->get();
 
-            return ApiResponse::Success('Breeds List', $breeds, 200);
+            return ApiResponse::Success(
+                'Cats List',
+                 $cats,
+                  200
+                );
         } catch (Exception $e) {
             return ApiResponse::Error($e->getMessage(), $e, 500);
         }
@@ -34,15 +37,14 @@ class BreedController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBreedRequest $request)
+    public function store(StoreCatRequest $request)
     {
         try {
-
             $data = $request->validated();
 
-            $breed = Breed::create($data);
+            $cat = Cat::create($data);
 
-            return ApiResponse::Success('Breed Created Successfully', $breed, 201);
+            return ApiResponse::Success('Cat Created Successfully', $cat, 201);
         } catch (Exception $e) {
             return ApiResponse::Error($e->getMessage(), $e, 500);
         }
@@ -51,27 +53,29 @@ class BreedController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Breed $breed)
+    public function show(Cat $cat)
     {
         try {
-
-            return ApiResponse::Success('Breed Details', $breed->load(['cats']), 200);
+            
+            return ApiResponse::Success('Cat Details', $cat->load(['breed']), 200);
         } catch (Exception $e) {
             return ApiResponse::Error($e->getMessage(), $e, 500);
         }
     }
 
+
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBreedRequest $request, Breed $breed)
+    public function update(UpdateCatRequest $request, Cat $cat)
     {
         try {
             $data = $request->validated();
 
-            $breed->update($data);
+            $cat->update($data);
 
-            return ApiResponse::Success('Breed Updated Successfully', $breed->load(['cats']), 200);
+            return ApiResponse::Success('Cat Updated Successfully', $cat->load(['breed']), 200);
         } catch (Exception $e) {
             return ApiResponse::Error($e->getMessage(), $e, 500);
         }
@@ -80,12 +84,12 @@ class BreedController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Breed $breed)
+    public function destroy(Cat $cat)
     {
         try {
-            $breed->delete();
+            $cat->delete();
 
-            return ApiResponse::Success('Breed Deleted Successfully', [], 200);
+            return ApiResponse::Success('Cat Deleted Successfully', [], 200);
         } catch (Exception $e) {
             return ApiResponse::Error($e->getMessage(), $e, 500);
         }
